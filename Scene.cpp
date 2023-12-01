@@ -12,6 +12,7 @@
 #include "Helpers.h"
 #include "Scene.h"
 #include "Line.h"
+#include "Rasterization.h"
 
 using namespace tinyxml2;
 using namespace std;
@@ -641,6 +642,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
 				// TODO: RASTERIZATION
+				rasterTriangle(camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
 			}
 		}
 
