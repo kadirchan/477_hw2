@@ -1,6 +1,7 @@
 #include "Line.h"
 #include "cmath"
 
+
 /*
 Line::Line()
 {

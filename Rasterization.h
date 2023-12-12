@@ -7,7 +7,6 @@
 #include "Vec4.h"
 #include "Color.h"
 #include "Camera.h"
-#include "Line.h"
 
 using namespace std;
 

@@ -637,7 +637,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				vertex2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
 				// vertex3
-				Vec4 homo = Vec4(vertex3.x, vertex3.y, vertex3.z, 1, vertex3.colorId);
+				homo = Vec4(vertex3.x, vertex3.y, vertex3.z, 1, vertex3.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
