@@ -642,20 +642,24 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				Vec4 homo = Vec4(vertex1.x, vertex1.y, vertex1.z, 1, vertex1.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex1 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
+				cout<<"z value: "<<vertex1.z<<endl;
 
 				// vertex2
 				homo = Vec4(vertex2.x, vertex2.y, vertex2.z, 1, vertex2.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
+				cout<<"z value: "<<vertex2.z<<endl;
 
 				// vertex3
 				homo = Vec4(vertex3.x, vertex3.y, vertex3.z, 1, vertex3.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
+				cout<<"z value: "<<vertex3.z<<endl;
+
 
 				// TODO: RASTERIZATION
 				// burada içini bi refactor etmek lazım
-				rasterTriangle(camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
+				rasterTriangle(depth, camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
 			}
 		}
 

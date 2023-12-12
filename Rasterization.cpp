@@ -16,7 +16,7 @@ double lineEQ(Vec3 v0, Vec3 v1, double x, double y)
 	return x*(v0.y-v1.y)+y*(v1.x-v0.x)+v0.x*v1.y-v0.y*v1.x;
 }
 
-void rasterTriangle(Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3, Color c1, Color c2, Color c3)
+void rasterTriangle(vector<vector<double>>& depth, Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3, Color c1, Color c2, Color c3)
 {
     // vector<vector<double>>& depth;
 	double xmin, xmax, ymin, ymax;
@@ -43,10 +43,13 @@ void rasterTriangle(Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, 
 				if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
                 {
                     // TODO: check for validity
-                    //double currentBuffer = depth.at(x).at(y);
-
-					// depth buffer eklenecek, bakkal yapmış ondan trick alınabilir (opsiyonel)
-                    image[x][y] = clr;
+                    double currentBuffer = depth.at(x).at(y);
+					double currentZ = vertex1.z * a + vertex2.z * b + vertex3.z * c ;
+					if (currentZ < currentBuffer)
+					{
+                    	image[x][y] = clr;
+						depth[x][y] = currentZ;
+					}
                 }
 			}
 
