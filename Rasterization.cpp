@@ -1,58 +1,53 @@
 #include <vector>
-#include "Matrix4.h"
+#include <cmath>
+#include "Line.h"
 #include "Vec3.h"
 #include "Vec4.h"
 #include "Color.h"
 #include "Camera.h"
-#include "Line.h"
-#include <cmath>
+#include "Matrix4.h"
 
 using namespace std;
 
 
-double lineEQ(Vec3 v0, Vec3 v1, double x, double y)
+double lineEQ(Vec3 vertex1, Vec3 vertex2, double x, double y)
 {
-	// TODO: refactor et
-	return x*(v0.y-v1.y)+y*(v1.x-v0.x)+v0.x*v1.y-v0.y*v1.x;
+	return (vertex1.x * vertex2.y - vertex1.y * vertex2.x) + x * (vertex1.y - vertex2.y) + y * (vertex2.x - vertex1.x);
 }
 
 void rasterTriangle(vector<vector<double>>& depth, Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3, Color c1, Color c2, Color c3)
 {
-    // vector<vector<double>>& depth;
-	double xmin, xmax, ymin, ymax;
-	// TODO: refactor et
-	xmin = min(min(vertex2.x, vertex3.x), vertex1.x);
-	xmax = max(max(vertex2.x, vertex3.x), vertex1.x);
-	ymin = min(min(vertex2.y, vertex3.y), vertex1.y);
-	ymax = max(max(vertex2.y, vertex3.y), vertex1.y);
-	for(int x = xmin ; x<xmax ; x++)
+	double min_x = min(min(vertex1.x, vertex2.x), vertex3.x);
+	double min_y = min(min(vertex1.y, vertex2.y), vertex3.y);
+	double max_x = max(max(vertex1.x, vertex2.x), vertex3.x);
+	double max_y = max(max(vertex1.y, vertex2.y), vertex3.y);
+
+	double divider_a = lineEQ(vertex2, vertex3, vertex1.x,vertex1.y);
+	double divider_b = lineEQ(vertex3, vertex1, vertex2.x,vertex2.y);
+	double divider_c = lineEQ(vertex1, vertex2, vertex3.x,vertex3.y);
+	
+	for(int x = min_x ;x < max_x ;x++)
 	{
-		for(int y=ymin ;y<ymax; y++)
+		for(int y = min_y; y < max_y; y++)
 		{
+			double a = lineEQ(vertex2, vertex3, x,y) / divider_a;
+			double b = lineEQ(vertex3, vertex1, x,y) / divider_b;
+			double c = lineEQ(vertex1, vertex2, x,y) / divider_c;
 
-			// divider kısımları sabit, değişmiyor -> onları parametre olarak dışarı taşımak mantıklı
-			double a = lineEQ(vertex2, vertex3, x,y)/lineEQ(vertex2, vertex3, vertex1.x,vertex1.y);
-			double b = lineEQ(vertex3, vertex1, x,y)/lineEQ(vertex3, vertex1, vertex2.x,vertex2.y);
-			double c = lineEQ(vertex1, vertex2, x,y)/lineEQ(vertex1, vertex2, vertex3.x,vertex3.y);
-
-
-			if(a>=0 && b>=0 && c>=0)
+			if(a >= 0 && b >= 0 && c >= 0)
 			{
-				Color clr(c1*a + c2*b + c3*c);
-				// if check buffer value!!!!
+				Color pixelColor(c1 * a + c2 * b + c3 * c);
 				if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
                 {
-                    // TODO: check for validity
                     double currentBuffer = depth.at(x).at(y);
 					double currentZ = vertex1.z * a + vertex2.z * b + vertex3.z * c ;
 					if (currentZ < currentBuffer)
 					{
-                    	image[x][y] = clr;
+                    	image[x][y] = pixelColor;
 						depth[x][y] = currentZ;
 					}
                 }
 			}
-
 		}
 	}
 }

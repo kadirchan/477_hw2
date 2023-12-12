@@ -16,4 +16,4 @@ public:
     Line(Vec3 v1, Vec3 v2, Color c1, Color c2);
 };
 
-Line clipLine(Line line, double minX, double minY, double maxX, double maxY);
+Line clipLine(Line line);

@@ -402,19 +402,18 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				double uy = rotation -> uy;
 				double uz = rotation -> uz;
 
-				temp.values[0][0] = c + ux * ux * (1 - c);
+				temp.values[0][0] = ux * ux * (1 - c) + c;
 				temp.values[0][1] = ux * uy * (1 - c) - uz * s;
 				temp.values[0][2] = ux * uz * (1 - c) + uy * s;
 
 				temp.values[1][0] = uy * ux * (1 - c) + uz * s;
-				temp.values[1][1] = c + uy * uy * (1 - c);
+				temp.values[1][1] = uy * uy * (1 - c) + c;
 				temp.values[1][2] = uy * uz * (1 - c) - ux * s;
 
 				temp.values[2][0] = uz * ux * (1 - c) - uy * s;
 				temp.values[2][1] = uz * uy * (1 - c) + ux * s;
-    			temp.values[2][2] = c + uz * uz * (1 - c);
+    			temp.values[2][2] = uz * uz * (1 - c) + c;
 			}
-
 
 			transformationMatrix = multiplyMatrixWithMatrix(temp, transformationMatrix);
 		}
@@ -436,8 +435,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			double near = camera -> near; 
 			double far = camera -> far;
 
-
-
 			cameraTransformationMatrix.values[0][0] = u.x;
 			cameraTransformationMatrix.values[0][1] = u.y;
 			cameraTransformationMatrix.values[0][2] = u.z;
@@ -452,7 +449,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			cameraTransformationMatrix.values[2][1] = w.y;
 			cameraTransformationMatrix.values[2][2] = w.z;
 			cameraTransformationMatrix.values[2][3] = -1 * (w.x * position.x + w.y * position.y + w.z * position.z);
-
 
 			// projectionType=0 for orthographic, projectionType=1 for perspective
 			Matrix4 projectionMatrix = getIdentityMatrix();
@@ -526,11 +522,8 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 		}
 	}
 
-
-	// ikinci for
 	for(int i=0; i<meshes.size();i++)
 	{
-		// ikinci for ilk for
 		for(int j=0; j<meshes[i]->numberOfTriangles;j++)
 		{
 			Triangle triangle = meshes[i]->triangles[j];
@@ -543,7 +536,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			Vec3 vertex3 =  transVertices[v3_id];
 
 
-			// check for backfuck culling
+			// check for fuck face culling
 			if (cullingEnabled) 
 			{
 				Vec3 normal;
@@ -558,9 +551,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 					continue;
 			}
 
-
-
-
 			// viewportMatrix is used in both scenario
 			Matrix4 viewportMatrix  = getIdentityMatrix();
 			int horRes = camera -> horRes;
@@ -572,18 +562,16 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			viewportMatrix.values[2][3] = 0.5;
 			viewportMatrix.values[0][3] = (horRes-1) * 0.5;
 			viewportMatrix.values[1][3] = (verRes-1) * 0.5;
+
 			// 0 for wireframe, 1 for solid
 			if(!(meshes[i]->type))
 			{
-				// TODO: lineclipping içindekiler constant olarak çevir
-				// assembly değişir!
 				Line tempLine1(vertex1,vertex2,*colorsOfVertices[vertex1.colorId-1],*colorsOfVertices[vertex2.colorId-1]);
-				Line line1 = clipLine(tempLine1,-1,-1,1,1);
+				Line line1 = clipLine(tempLine1);
 				Line tempLine2(vertex2,vertex3,*colorsOfVertices[vertex2.colorId-1],*colorsOfVertices[vertex3.colorId-1]);
-				Line line2 = clipLine(tempLine2,-1,-1,1,1);
+				Line line2 = clipLine(tempLine2);
 				Line tempLine3(vertex3,vertex1,*colorsOfVertices[vertex3.colorId-1],*colorsOfVertices[vertex1.colorId-1]);
-				Line line3 = clipLine(tempLine3,-1,-1,1,1);
-
+				Line line3 = clipLine(tempLine3);
 
 				// FOR LINE 1
 				Vec3 l1p1 = line1.v1;
@@ -609,8 +597,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				line2.v2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
-
-
 				// FOR LINE 3
 				Vec3 l3p1 = line3.v1;
 				homo = Vec4(l3p1.x, l3p1.y, l3p1.z, 1, l3p1.colorId);
@@ -622,12 +608,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				line3.v2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
-
-				// TODO: RASTERIZATION
-				// sezyumdaki drawWire'ı buraya direkt açtım
-				// 3 kere rasterLine() çağıracağız
-				// her biri bir line için
-
 				// bool value to reverse point in line2
 				rasterLine(camera,image,line1, false, colorsOfVertices);
 				rasterLine(camera,image,line2, true, colorsOfVertices);
@@ -637,28 +617,26 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			}
 			else 
 			{
-				// vertex1
 				// HOMO ( ͡° ͜ʖ ͡°)
+
+				// vertex1
 				Vec4 homo = Vec4(vertex1.x, vertex1.y, vertex1.z, 1, vertex1.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex1 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				cout<<"z value: "<<vertex1.z<<endl;
+				// cout<<"z value: "<<vertex1.z<<endl;
 
 				// vertex2
 				homo = Vec4(vertex2.x, vertex2.y, vertex2.z, 1, vertex2.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				cout<<"z value: "<<vertex2.z<<endl;
+				// cout<<"z value: "<<vertex2.z<<endl;
 
 				// vertex3
 				homo = Vec4(vertex3.x, vertex3.y, vertex3.z, 1, vertex3.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				cout<<"z value: "<<vertex3.z<<endl;
+				// cout<<"z value: "<<vertex3.z<<endl;
 
-
-				// TODO: RASTERIZATION
-				// burada içini bi refactor etmek lazım
 				rasterTriangle(depth, camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
 			}
 		}

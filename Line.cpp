@@ -1,18 +1,6 @@
 #include "Line.h"
 #include "cmath"
 
-
-/*
-Line::Line()
-{
-    this->point1 = Vec3();
-    this->point2 = Vec3();
-    this->color1 = Color();
-    this->color2 = Color();
-    this->isInsideOfPlane = false;
-}
-*/
-
 Line::Line(const Line &prev)
 {
     this->c2 = prev.c2;
@@ -32,67 +20,55 @@ Line::Line(Vec3 v1, Vec3 v2, Color c1, Color c2)
     this->v2 = v2;
 }
 
-// TODO: refactor
-bool visible(double den,double num,double &tE,double &tL)
+bool visible(double x, double y, double &tE, double &tL)
 {
     double t;
-    if(den>0)
+    if(x < 0)
     {
-        t = num/den;
-        if(t>tL)
+        t = y / x;
+        if(t < tE)
             return false;
-        else if(t>tE)
-            tE = t;
-    }
-    else if(den<0)
-    {
-        t = num/den;
-        if(t<tE)
-            return false;
-        else if(t<tL)
+        else if(t < tL)
             tL = t;
-    }
-    else if(num>0)
+    } else if(x > 0)
+    {
+        t = y / x;
+        if(t > tL)
+            return false;
+        else if(t > tE)
+            tE = t;
+    } else if(y > 0)
+    {
         return false;
+    }
     return true;
 }
 
-
-Line clipLine(Line line, double minX, double minY, double maxX, double maxY)
+Line clipLine(Line line)
 {
     Line tempLine(line);
+    tempLine.isInside = false;
     double tE = 0;
     double tL = 1;
     double dx = tempLine.v2.x - tempLine.v1.x;
     double dy = tempLine.v2.y - tempLine.v1.y;
-    tempLine.isInside = false;
-    // TODO: make it single line and check if it works
-    // bir kere değiştirmeden çalıştır sonra sadece burayı
-    // değiştirerek çalıştır, sonrasında bozuyor mu bak
 
-    // dipnot: bence en son yapalım
-    if(visible(dx, minX - tempLine.v1.x, tE, tL))
+    if( visible(dx, -1 - tempLine.v1.x, tE, tL) &&
+        visible(-dx, tempLine.v1.x - 1, tE, tL) &&
+        visible(dy, -1 - tempLine.v1.y, tE, tL) &&
+        visible(-dy, tempLine.v1.y - 1, tE, tL) )
     {
-        if(visible(-dx, tempLine.v1.x - maxX, tE, tL))
+        if(tL < 1)
         {
-            if(visible(dy, minY - tempLine.v1.y, tE, tL))
-            {
-                if(visible(-dy, tempLine.v1.y - maxY, tE, tL))
-                {
-                    if(tL < 1)
-                    {
-                        tempLine.v2.x = tempLine.v1.x + tL * dx;
-                        tempLine.v2.y = tempLine.v1.y + tL * dy;
-                    }
-                    if(tE > 0)
-                    {
-                        tempLine.v1.x = tempLine.v1.x + tE * dx;
-                        tempLine.v1.y = tempLine.v1.y + tE * dy;
-                    }
-                    tempLine.isInside = true;
-                }
-            }
+            tempLine.v2.x = tempLine.v1.x + tL * dx;
+            tempLine.v2.y = tempLine.v1.y + tL * dy;
         }
+        if(tE > 0)
+        {
+            tempLine.v1.x = tempLine.v1.x + tE * dx;
+            tempLine.v1.y = tempLine.v1.y + tE * dy;
+        }
+        tempLine.isInside = true;
     }
 
     Vec3 lineV1 = line.v1;
@@ -100,12 +76,10 @@ Line clipLine(Line line, double minX, double minY, double maxX, double maxY)
     Vec3 tempV1 = tempLine.v1;
     Vec3 tempV2 = tempLine.v2;
 
-
     float v1_to_v1Prime = sqrt((lineV1.x - tempV1.x)*(lineV1.x - tempV1.x) + (lineV1.y - tempV1.y)*(lineV1.y - tempV1.y));
     float v1_to_v2Prime = sqrt((lineV1.x - tempV2.x)*(lineV1.x - tempV2.x) + (lineV1.y - tempV2.y)*(lineV1.y - tempV2.y));
     float v2_to_v1Prime = sqrt((lineV2.x - tempV1.x)*(lineV2.x - tempV1.x) + (lineV2.y - tempV1.y)*(lineV2.y - tempV1.y));
     float v2_to_v2Prime = sqrt((lineV2.x - tempV2.x)*(lineV2.x - tempV2.x) + (lineV2.y - tempV2.y)*(lineV2.y - tempV2.y));
-
 
     Color lineC1 = line.c1;
     Color lineC2 = line.c2;
