@@ -268,18 +268,15 @@ void Scene::initializeImage(Camera *camera)
 		for (int i = 0; i < camera->horRes; i++)
 		{
 			vector<Color> rowOfColors;
-			// BURADA DEPTH DİYE BİR ŞEY EKLENMİŞ
 			vector<double> rowOfDepths;
 
 			for (int j = 0; j < camera->verRes; j++)
 			{
 				rowOfColors.push_back(this->backgroundColor);
-				// DEPTHLERİ EKLEMİŞ, DEFAULT OLARAK HEPSİNE 1.01 VERMİŞ
 				rowOfDepths.push_back(1.01);
 			}
 
 			this->image.push_back(rowOfColors);
-			// BURA DA FARKLI
 			this->depth.push_back(rowOfDepths);
 		}
 	}
@@ -290,7 +287,6 @@ void Scene::initializeImage(Camera *camera)
 			for (int j = 0; j < camera->verRes; j++)
 			{
 				assignColorToPixel(i, j, this->backgroundColor);
-				// BURA DA YENİ AMA SEN ANLAMADIN!!!!
 				this->depth[i][j] = 1.01;
 				this->depth[i][j] = 1.01;
 				this->depth[i][j] = 1.01;
@@ -418,7 +414,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			transformationMatrix = multiplyMatrixWithMatrix(temp, transformationMatrix);
 		}
 
-		// ilk for son for
 		for(int j=0; j<meshes[i]->numberOfTriangles;j++)
 		{
 			// CALCULATE MATRICES
@@ -454,7 +449,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			Matrix4 projectionMatrix = getIdentityMatrix();
 			if (camera->projectionType)
 			{
-				// potential error
 				projectionMatrix.values[0][0] = (2*near) / (right-left);
 				projectionMatrix.values[0][2] = (right+left)/(right-left);
 				projectionMatrix.values[1][1] = (2*near)/(top-bottom);
@@ -503,7 +497,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			vertex3 = Vec3(vertex3_4.x/vertex3_4.t, vertex3_4.y/vertex3_4.t, vertex3_4.z/vertex3_4.t, vertex3.colorId);
 
 
-			// BABALAR SÖZÜNÜ TUTARRRR
 			if (isTransformed[v1_id]==false)
 			{
 				transVertices[v1_id] = vertex1;
@@ -536,7 +529,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			Vec3 vertex3 =  transVertices[v3_id];
 
 
-			// check for fuck face culling
+			// check for fuck face culling ( ͡° ͜ʖ ͡°)
 			if (cullingEnabled) 
 			{
 				Vec3 normal;
@@ -555,7 +548,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			Matrix4 viewportMatrix  = getIdentityMatrix();
 			int horRes = camera -> horRes;
 			int verRes = camera -> verRes;
-			// TODO: int or double??? int koymuş eşek aq
+
 			viewportMatrix.values[0][0] = horRes * 0.5;
 			viewportMatrix.values[1][1] = verRes * 0.5;
 			viewportMatrix.values[2][2] = 0.5;
@@ -609,39 +602,33 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				line3.v2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
 				// bool value to reverse point in line2
-				rasterLine(camera,image,line1, false, colorsOfVertices);
-				rasterLine(camera,image,line2, true, colorsOfVertices);
-				rasterLine(camera,image,line3, true, colorsOfVertices);
+				rasterLine(depth, camera, image, line1, false, colorsOfVertices);
+				rasterLine(depth, camera, image, line2, true, colorsOfVertices);
+				// TODO: check here
+				rasterLine(depth, camera, image, line3, false, colorsOfVertices);
 
 
 			}
 			else 
 			{
-				// HOMO ( ͡° ͜ʖ ͡°)
-
 				// vertex1
 				Vec4 homo = Vec4(vertex1.x, vertex1.y, vertex1.z, 1, vertex1.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex1 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				// cout<<"z value: "<<vertex1.z<<endl;
 
 				// vertex2
 				homo = Vec4(vertex2.x, vertex2.y, vertex2.z, 1, vertex2.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				// cout<<"z value: "<<vertex2.z<<endl;
 
 				// vertex3
 				homo = Vec4(vertex3.x, vertex3.y, vertex3.z, 1, vertex3.colorId);
 				homo = multiplyMatrixWithVec4(viewportMatrix, homo);
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
-				// cout<<"z value: "<<vertex3.z<<endl;
 
 				rasterTriangle(depth, camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
 			}
 		}
 
 	}
-
-
 }

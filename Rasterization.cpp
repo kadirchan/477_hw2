@@ -26,9 +26,9 @@ void rasterTriangle(vector<vector<double>>& depth, Camera *camera, vector<vector
 	double divider_b = lineEQ(vertex3, vertex1, vertex2.x,vertex2.y);
 	double divider_c = lineEQ(vertex1, vertex2, vertex3.x,vertex3.y);
 	
-	for(int x = min_x ;x < max_x ;x++)
+	for(int x = min_x ; x < max_x ; x++)
 	{
-		for(int y = min_y; y < max_y; y++)
+		for(int y = min_y ; y < max_y ; y++)
 		{
 			double a = lineEQ(vertex2, vertex3, x,y) / divider_a;
 			double b = lineEQ(vertex3, vertex1, x,y) / divider_b;
@@ -53,7 +53,7 @@ void rasterTriangle(vector<vector<double>>& depth, Camera *camera, vector<vector
 }
 
 
-void rasterLine(Camera *camera, vector<vector<Color>> &image, Line currentLine, bool reversed, vector<Color *> colorsOfVertices)
+void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Color>> &image, Line currentLine, bool reversed, vector<Color *> colorsOfVertices)
 {
 	if (currentLine.isInside==false)
 		return;
