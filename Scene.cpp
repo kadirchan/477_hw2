@@ -479,6 +479,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			}
 
 			projectionMatrix = multiplyMatrixWithMatrix(projectionMatrix,cameraTransformationMatrix);
+			projectionMatrix = multiplyMatrixWithMatrix(projectionMatrix,transformationMatrix);
 
 
 			// CALCULATE TRIANGLE
