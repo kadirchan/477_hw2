@@ -575,6 +575,8 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			// 0 for wireframe, 1 for solid
 			if(!(meshes[i]->type))
 			{
+				// TODO: lineclipping içindekiler constant olarak çevir
+				// assembly değişir!
 				Line tempLine1(vertex1,vertex2,*colorsOfVertices[vertex1.colorId-1],*colorsOfVertices[vertex2.colorId-1]);
 				Line line1 = clipLine(tempLine1,-1,-1,1,1);
 				Line tempLine2(vertex2,vertex3,*colorsOfVertices[vertex2.colorId-1],*colorsOfVertices[vertex3.colorId-1]);
@@ -622,6 +624,15 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 
 
 				// TODO: RASTERIZATION
+				// sezyumdaki drawWire'ı buraya direkt açtım
+				// 3 kere rasterLine() çağıracağız
+				// her biri bir line için
+
+				// bool value to reverse point in line2
+				rasterLine(camera,image,line1, false, colorsOfVertices);
+				rasterLine(camera,image,line2, true, colorsOfVertices);
+				rasterLine(camera,image,line3, true, colorsOfVertices);
+
 
 			}
 			else 
@@ -643,6 +654,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				vertex3 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
 				// TODO: RASTERIZATION
+				// burada içini bi refactor etmek lazım
 				rasterTriangle(camera, image, vertex1, vertex2, vertex3, *colorsOfVertices[vertex1.colorId-1], *colorsOfVertices[vertex2.colorId-1], *colorsOfVertices[vertex3.colorId-1]);
 			}
 		}

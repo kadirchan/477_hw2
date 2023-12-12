@@ -5,12 +5,14 @@
 #include "Color.h"
 #include "Camera.h"
 #include "Line.h"
+#include <cmath>
 
 using namespace std;
 
 
 double lineEQ(Vec3 v0, Vec3 v1, double x, double y)
 {
+	// TODO: refactor et
 	return x*(v0.y-v1.y)+y*(v1.x-v0.x)+v0.x*v1.y-v0.y*v1.x;
 }
 
@@ -18,6 +20,7 @@ void rasterTriangle(Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, 
 {
     // vector<vector<double>>& depth;
 	double xmin, xmax, ymin, ymax;
+	// TODO: refactor et
 	xmin = min(min(vertex2.x, vertex3.x), vertex1.x);
 	xmax = max(max(vertex2.x, vertex3.x), vertex1.x);
 	ymin = min(min(vertex2.y, vertex3.y), vertex1.y);
@@ -26,9 +29,13 @@ void rasterTriangle(Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, 
 	{
 		for(int y=ymin ;y<ymax; y++)
 		{
+
+			// divider kısımları sabit, değişmiyor -> onları parametre olarak dışarı taşımak mantıklı
 			double a = lineEQ(vertex2, vertex3, x,y)/lineEQ(vertex2, vertex3, vertex1.x,vertex1.y);
 			double b = lineEQ(vertex3, vertex1, x,y)/lineEQ(vertex3, vertex1, vertex2.x,vertex2.y);
 			double c = lineEQ(vertex1, vertex2, x,y)/lineEQ(vertex1, vertex2, vertex3.x,vertex3.y);
+
+
 			if(a>=0 && b>=0 && c>=0)
 			{
 				Color clr(c1*a + c2*b + c3*c);
@@ -37,10 +44,85 @@ void rasterTriangle(Camera *camera, vector<vector<Color>> &image, Vec3 vertex1, 
                 {
                     // TODO: check for validity
                     //double currentBuffer = depth.at(x).at(y);
+
+					// depth buffer eklenecek, bakkal yapmış ondan trick alınabilir (opsiyonel)
                     image[x][y] = clr;
                 }
 			}
 
+		}
+	}
+}
+
+
+void rasterLine(Camera *camera, vector<vector<Color>> &image, Line currentLine, bool reversed, vector<Color *> colorsOfVertices)
+{
+	if (currentLine.isInside==false)
+		return;
+
+	vector<Vec3> res;
+	float x1,y1,x2,y2;
+	Color color1, color2;
+
+	if (reversed)
+	{
+		x2 = currentLine.v1.x;
+		y2 = currentLine.v1.y;
+		x1 = currentLine.v2.x;
+		y1 = currentLine.v2.y;
+		color1 = *colorsOfVertices[currentLine.v2.colorId-1];
+		color2 = *colorsOfVertices[currentLine.v1.colorId-1]; 
+	}
+	else 
+	{
+		x1 = currentLine.v1.x;
+		y1 = currentLine.v1.y;
+		x2 = currentLine.v2.x;
+		y2 = currentLine.v2.y;
+		color1 = *colorsOfVertices[currentLine.v1.colorId-1];
+		color2 = *colorsOfVertices[currentLine.v2.colorId-1];
+	}
+
+    float xdiff = (x2 - x1);
+	float ydiff = (y2 - y1);
+
+	if(xdiff == 0.0f && ydiff == 0.0f) {
+		if(x1 >= 0 && x1 < camera->horRes && y1 >= 0 && y1 < camera->verRes)
+        	image[x1][y1] = color1;
+	}
+
+	if(fabs(xdiff) > fabs(ydiff)) {
+		float xmin, xmax;
+		if(x1 < x2) {
+			xmin = x1;
+			xmax = x2;
+		} else {
+			xmin = x2;
+			xmax = x1;
+		}
+
+		float slope = ydiff / xdiff;
+		for(float x = xmin; x <= xmax; x += 1.0f) {
+			float y = y1 + ((x - x1) * slope);
+			Color color = color1 + (Color(color2 - color1) * ((x - x1) / xdiff));
+			if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
+            	image[x][y] = color;
+		}
+	} else {
+		float ymin, ymax;
+		if(y1 < y2) {
+			ymin = y1;
+			ymax = y2;
+		} else {
+			ymin = y2;
+			ymax = y1;
+		}
+		float slope = xdiff / ydiff;
+		for(float y = ymin; y <= ymax; y += 1.0f) {
+			float x = x1 + ((y - y1) * slope);
+			Color color = color1 + ((color2 - color1) * ((y - y1) / ydiff));
+			if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
+				image[x][y] = color;
 		}
 	}
 }

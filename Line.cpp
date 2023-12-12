@@ -32,7 +32,7 @@ Line::Line(Vec3 v1, Vec3 v2, Color c1, Color c2)
     this->v2 = v2;
 }
 
-// TODO: modifikasyon
+// TODO: refactor
 bool visible(double den,double num,double &tE,double &tL)
 {
     double t;
@@ -66,7 +66,11 @@ Line clipLine(Line line, double minX, double minY, double maxX, double maxY)
     double dx = tempLine.v2.x - tempLine.v1.x;
     double dy = tempLine.v2.y - tempLine.v1.y;
     tempLine.isInside = false;
-    // TODO: make it line
+    // TODO: make it single line and check if it works
+    // bir kere değiştirmeden çalıştır sonra sadece burayı
+    // değiştirerek çalıştır, sonrasında bozuyor mu bak
+
+    // dipnot: bence en son yapalım
     if(visible(dx, minX - tempLine.v1.x, tE, tL))
     {
         if(visible(-dx, tempLine.v1.x - maxX, tE, tL))
