@@ -474,9 +474,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			int v2_id = triangle.vertexIds[1]-1;
 			int v3_id = triangle.vertexIds[2]-1;
 
-			Vec3 vertex1 =  deepCopyVerticesForMeshes[i][v1_id];
-			Vec3 vertex2 =  deepCopyVerticesForMeshes[i][v2_id];
-			Vec3 vertex3 =  deepCopyVerticesForMeshes[i][v3_id];
+			Vec3 vertex1 =  *vertices[v1_id];
+			Vec3 vertex2 =  *vertices[v2_id];
+			Vec3 vertex3 =  *vertices[v3_id];
 
 			Vec4 vertex1_4 = Vec4(vertex1.x, vertex1.y, vertex1.z, 1, vertex1.colorId);
 			Vec4 vertex2_4 = Vec4(vertex2.x, vertex2.y, vertex2.z, 1, vertex2.colorId);
