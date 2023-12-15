@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <map>
 
 #include "tinyxml2.h"
 #include "Triangle.h"
@@ -355,7 +356,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 {
 	vector<bool> isTransformed;
 	vector<Vec3> transVertices;
-	vector<vector<Vec3>> verticesForMeshes;
+	// for each mesh, create and map (indexOfVertices,Vec3)
+	vector<map<int,Vec3>> deepCopyVerticesForMeshes;
+	deepCopyVerticesForMeshes.resize(vertices.size());
 
 	// init arrays for later use
 	for(int i=0;i<vertices.size();i++)
@@ -363,6 +366,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 		isTransformed.push_back(false);
 		transVertices.push_back(*vertices[i]);
 	}
+
 
 	// create transformation matrix
 	for(int i=0; i<meshes.size();i++)
@@ -497,31 +501,15 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			vertex2 = Vec3(vertex2_4.x/vertex2_4.t, vertex2_4.y/vertex2_4.t, vertex2_4.z/vertex2_4.t, vertex2.colorId);
 			vertex3 = Vec3(vertex3_4.x/vertex3_4.t, vertex3_4.y/vertex3_4.t, vertex3_4.z/vertex3_4.t, vertex3.colorId);
 
-			
-			if (isTransformed[v1_id]==false)
-			{
-				transVertices[v1_id] = vertex1;
-				isTransformed[v1_id] = true;
-			}
-			if (isTransformed[v2_id]==false)
-			{
-				transVertices[v2_id] = vertex2;
-				isTransformed[v2_id] = true;
-			}
-			if (isTransformed[v3_id]==false)
-			{
-				transVertices[v3_id] = vertex3;
-				isTransformed[v3_id] = true;
-			}
-			
-
-			//vector<Vec3> verticesForSingleMesh;
-
+			deepCopyVerticesForMeshes[i][v1_id] = vertex1;
+			deepCopyVerticesForMeshes[i][v2_id] = vertex2;
+			deepCopyVerticesForMeshes[i][v3_id] = vertex3;
 		}
 	}
 
 	for(int i=0; i<meshes.size();i++)
 	{
+		map<int,Vec3> meshMap = deepCopyVerticesForMeshes[i];
 		for(int j=0; j<meshes[i]->numberOfTriangles;j++)
 		{
 			Triangle triangle = meshes[i]->triangles[j];
@@ -529,9 +517,15 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			int v2_id = triangle.vertexIds[1]-1;
 			int v3_id = triangle.vertexIds[2]-1;
 
-			Vec3 vertex1 =  transVertices[v1_id];
-			Vec3 vertex2 =  transVertices[v2_id];
-			Vec3 vertex3 =  transVertices[v3_id];
+
+			// old code -> get vertices from "deepCopyVerticesForMeshes"
+			//Vec3 vertex1 =  transVertices[v1_id];
+			//Vec3 vertex2 =  transVertices[v2_id];
+			//Vec3 vertex3 =  transVertices[v3_id];
+
+			Vec3 vertex1 =  meshMap[v1_id];
+			Vec3 vertex2 =  meshMap[v2_id];
+			Vec3 vertex3 =  meshMap[v3_id];
 
 
 			// check for fuck face culling ( ͡° ͜ʖ ͡°)
