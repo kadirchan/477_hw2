@@ -601,10 +601,10 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				line3.v2 = Vec3(homo.x, homo.y, homo.z, homo.colorId);
 
 				// bool value to reverse point in line2
-				rasterLine(depth, camera, image, line1, false, colorsOfVertices);
-				rasterLine(depth, camera, image, line2, true, colorsOfVertices);
+				rasterLine(depth, camera, image, line1, false);
+				rasterLine(depth, camera, image, line2, true);
 				// TODO: check here
-				rasterLine(depth, camera, image, line3, false, colorsOfVertices);
+				rasterLine(depth, camera, image, line3, false);
 
 
 			}
