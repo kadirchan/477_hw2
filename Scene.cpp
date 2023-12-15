@@ -354,18 +354,9 @@ void Scene::convertPPMToPNG(string ppmFileName)
 */
 void Scene::forwardRenderingPipeline(Camera *camera)
 {
-	vector<bool> isTransformed;
-	vector<Vec3> transVertices;
 	// for each mesh, create and map (indexOfVertices,Vec3)
 	vector<map<int,Vec3>> deepCopyVerticesForMeshes;
 	deepCopyVerticesForMeshes.resize(vertices.size());
-
-	// init arrays for later use
-	for(int i=0;i<vertices.size();i++)
-	{
-		isTransformed.push_back(false);
-		transVertices.push_back(*vertices[i]);
-	}
 
 
 	// create transformation matrix
@@ -483,9 +474,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			int v2_id = triangle.vertexIds[1]-1;
 			int v3_id = triangle.vertexIds[2]-1;
 
-			Vec3 vertex1 =  transVertices[v1_id];
-			Vec3 vertex2 =  transVertices[v2_id];
-			Vec3 vertex3 =  transVertices[v3_id];
+			Vec3 vertex1 =  deepCopyVerticesForMeshes[i][v1_id];
+			Vec3 vertex2 =  deepCopyVerticesForMeshes[i][v2_id];
+			Vec3 vertex3 =  deepCopyVerticesForMeshes[i][v3_id];
 
 			Vec4 vertex1_4 = Vec4(vertex1.x, vertex1.y, vertex1.z, 1, vertex1.colorId);
 			Vec4 vertex2_4 = Vec4(vertex2.x, vertex2.y, vertex2.z, 1, vertex2.colorId);
@@ -517,16 +508,9 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			int v2_id = triangle.vertexIds[1]-1;
 			int v3_id = triangle.vertexIds[2]-1;
 
-
-			// old code -> get vertices from "deepCopyVerticesForMeshes"
-			//Vec3 vertex1 =  transVertices[v1_id];
-			//Vec3 vertex2 =  transVertices[v2_id];
-			//Vec3 vertex3 =  transVertices[v3_id];
-
 			Vec3 vertex1 =  meshMap[v1_id];
 			Vec3 vertex2 =  meshMap[v2_id];
 			Vec3 vertex3 =  meshMap[v3_id];
-
 
 			// check for fuck face culling ( ͡° ͜ʖ ͡°)
 			if (cullingEnabled) 
@@ -603,7 +587,6 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				// bool value to reverse point in line2
 				rasterLine(depth, camera, image, line1, false);
 				rasterLine(depth, camera, image, line2, true);
-				// TODO: check here
 				rasterLine(depth, camera, image, line3, false);
 
 

@@ -85,10 +85,11 @@ void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Col
 		color2 = currentLine.c2; 
 	}
 
-    float xdiff = (x2 - x1);
 	float ydiff = (y2 - y1);
+    float xdiff = (x2 - x1);
 
-	if(xdiff == 0.0f && ydiff == 0.0f) {
+	if(xdiff == 0.0f && ydiff == 0.0f) 
+	{
 		if(x1 >= 0 && x1 < camera->horRes && y1 >= 0 && y1 < camera->verRes)
 		{
 			double currentBuffer = depth[x1][y1];
@@ -101,52 +102,71 @@ void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Col
 		}
 	}
 
-	if(fabs(xdiff) > fabs(ydiff)) {
+	if(fabs(xdiff) > fabs(ydiff)) 
+	{
 		float xmin, xmax;
-		if(x1 < x2) {
-			xmin = x1;
-			xmax = x2;
-		} else {
+		if(x1 >= x2) 
+		{
 			xmin = x2;
 			xmax = x1;
+		} 
+		else 
+		{
+			xmin = x1;
+			xmax = x2;	
 		}
 
 		float slope = ydiff / xdiff;
-		for(float x = xmin; x <= xmax; x += 1.0f) {
-			float y = y1 + ((x - x1) * slope);
+		for(float x = xmin; x <= xmax; x += 1.0f) 
+		{
 			Color color = color1 + (Color(color2 - color1) * ((x - x1) / xdiff));
-			if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
+			float y = y1 + ((x - x1) * slope);
+
+			
+			if (y >= 0 && y < camera->verRes)
 			{
-				double currentBuffer = depth[x][y];
-				double currentZ = (x-x1)*(z2-z1)/(x2-x1) + z1;
-				if ( currentZ < currentBuffer)
+				if(x >= 0 && x < camera->horRes)	
 				{
-					depth[x][y] = currentZ; 
-					image[x][y] = color;
+					double currentBuffer = depth[x][y];
+					double currentZ = (x-x1)*(z2-z1)/(x2-x1) + z1;
+					if ( currentZ < currentBuffer)
+					{
+						depth[x][y] = currentZ; 
+						image[x][y] = color;
+					}
 				}
 			}
 		}
-	} else {
+	} 
+	else 
+	{
 		float ymin, ymax;
-		if(y1 < y2) {
+
+		if(y1 >= y2) {
+			ymin = y2;
+			ymax = y1;	
+		} else {
 			ymin = y1;
 			ymax = y2;
-		} else {
-			ymin = y2;
-			ymax = y1;
 		}
+
 		float slope = xdiff / ydiff;
-		for(float y = ymin; y <= ymax; y += 1.0f) {
-			float x = x1 + ((y - y1) * slope);
+		for (float y = ymin; y <= ymax; y += 1.0f) 
+		{
 			Color color = color1 + ((color2 - color1) * ((y - y1) / ydiff));
-			if(x >= 0 && x < camera->horRes && y >= 0 && y < camera->verRes)
+			float x = x1 + ((y - y1) * slope);
+			
+			if(y >= 0 && y < camera->verRes)
 			{
-				double currentBuffer = depth[x][y];
-				double currentZ = (x-x1)*(z2-z1)/(x2-x1) + z1;
-				if ( currentZ < currentBuffer)
+				if (x >= 0 && x < camera->horRes)
 				{
-					depth[x][y] = currentZ; 
-					image[x][y] = color;
+					double currentBuffer = depth[x][y];
+					double currentZ = (x-x1)*(z2-z1)/(x2-x1) + z1;
+					if ( currentZ < currentBuffer)
+					{
+						depth[x][y] = currentZ; 
+						image[x][y] = color;
+					}
 				}
 			}
 		}

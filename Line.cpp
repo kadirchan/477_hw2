@@ -30,18 +30,23 @@ bool visible(double x, double y, double &tE, double &tL)
             return false;
         else if(t < tL)
             tL = t;
-    } else if(x > 0)
+    } 
+    else if(x > 0)
     {
         t = y / x;
         if(t > tL)
             return false;
         else if(t > tE)
             tE = t;
-    } else if(y > 0)
+    } 
+    else if(y > 0)
     {
         return false;
     }
-    return true;
+    else
+    {
+        return true;
+    }
 }
 
 
@@ -86,25 +91,17 @@ Line clipLine(Line line)
     Color lineC1 = line.c1;
     Color lineC2 = line.c2;
 
-    // printf("before clip line vertex 1: %f %f %f vertex2: %f %f %f \n", lineV1.x, lineV1.y, lineV1.z, lineV2.x, lineV2.y, lineV2.z);
-    // printf("after clip line vertex 1: %f %f %f vertex2: %f %f %f \n", tempV1.x, tempV1.y, tempV1.z, tempV2.x, tempV2.y, tempV2.z);
-
-    // printf("before c1: %f %f %f\n", lineC1.r, lineC1.g, lineC1.b);
-    // printf("before c2: %f %f %f\n", lineC2.r, lineC2.g, lineC2.b);
     float alpha = v1_to_v1Prime / v1_to_v2;
-    // printf("alpha: %f\n", alpha);
+
     tempLine.c1.r = (lineC1.r * (1 - alpha) + lineC2.r * alpha) ;
     tempLine.c1.g = (lineC1.g * (1 - alpha) + lineC2.g * alpha) ;
     tempLine.c1.b = (lineC1.b * (1 - alpha) + lineC2.b * alpha) ;
 
     alpha = v2_to_v2Prime / v1_to_v2;
-    // printf("alpha: %f\n", alpha);
+
     tempLine.c2.r = (lineC2.r * (1 - alpha) + lineC1.r * alpha) ;
     tempLine.c2.g = (lineC2.g * (1 - alpha) + lineC1.g * alpha) ;
     tempLine.c2.b = (lineC2.b * (1 - alpha) + lineC1.b * alpha) ;
-
-    //printf("c1: %f %f %f\n", tempLine.c1.r, tempLine.c1.g, tempLine.c1.b);
-    // printf("c2: %f %f %f\n", tempLine.c2.r, tempLine.c2.g, tempLine.c2.b);
 
     return tempLine;
 }
