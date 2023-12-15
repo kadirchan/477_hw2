@@ -53,7 +53,7 @@ void rasterTriangle(vector<vector<double>>& depth, Camera *camera, vector<vector
 }
 
 
-void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Color>> &image, Line currentLine, bool reversed, vector<Color *> colorsOfVertices)
+void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Color>> &image, Line currentLine, bool reversed)
 {
 	if (currentLine.isInside==false)
 		return;
@@ -70,8 +70,8 @@ void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Col
 		x1 = currentLine.v2.x;
 		y1 = currentLine.v2.y;
 		z1 = currentLine.v2.z;
-		color1 = *colorsOfVertices[currentLine.v2.colorId-1];
-		color2 = *colorsOfVertices[currentLine.v1.colorId-1]; 
+		color1 = currentLine.c2;
+		color2 = currentLine.c1; 
 	}
 	else 
 	{
@@ -81,8 +81,8 @@ void rasterLine(vector<vector<double>>& depth, Camera *camera, vector<vector<Col
 		x2 = currentLine.v2.x;
 		y2 = currentLine.v2.y;
 		z2 = currentLine.v2.z;
-		color1 = *colorsOfVertices[currentLine.v1.colorId-1];
-		color2 = *colorsOfVertices[currentLine.v2.colorId-1];
+		color1 = currentLine.c1;
+		color2 = currentLine.c2; 
 	}
 
     float xdiff = (x2 - x1);
