@@ -355,6 +355,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 {
 	vector<bool> isTransformed;
 	vector<Vec3> transVertices;
+	vector<vector<Vec3>> verticesForMeshes;
 
 	// init arrays for later use
 	for(int i=0;i<vertices.size();i++)
@@ -496,7 +497,7 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 			vertex2 = Vec3(vertex2_4.x/vertex2_4.t, vertex2_4.y/vertex2_4.t, vertex2_4.z/vertex2_4.t, vertex2.colorId);
 			vertex3 = Vec3(vertex3_4.x/vertex3_4.t, vertex3_4.y/vertex3_4.t, vertex3_4.z/vertex3_4.t, vertex3.colorId);
 
-
+			
 			if (isTransformed[v1_id]==false)
 			{
 				transVertices[v1_id] = vertex1;
@@ -512,6 +513,10 @@ void Scene::forwardRenderingPipeline(Camera *camera)
 				transVertices[v3_id] = vertex3;
 				isTransformed[v3_id] = true;
 			}
+			
+
+			//vector<Vec3> verticesForSingleMesh;
+
 		}
 	}
 
